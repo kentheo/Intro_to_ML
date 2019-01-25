@@ -1,10 +1,5 @@
 import numpy as np
 import sys
-# Load data: Arrays of 2000x8
-clean_data = np.loadtxt('wifi_db/clean_dataset.txt')
-noisy_data = np.loadtxt('wifi_db/noisy_dataset.txt')
-
-first_mpla = clean_data[0:100,:]
 
 def find_number_labels(data):
     unique_labels = np.unique(data[:, -1])
@@ -13,18 +8,27 @@ def find_number_labels(data):
         counter.append(data[data[:, -1] == i].shape[0])
     return counter
 # print(first_mpla)
-def decision_tree_learning(data, depth):
+def decision_tree_learning(count, data, depth):
+    count += 1
     # Get all labels
     labels = data[:,-1]
-
     # Check if all samples have the same label
-    result = len(set(labels)) == 1
+    result = len(set(labels)) <= 1
 
+    print("DecisionTreeLEARNING ", count, "----- result: ", result)
     if result:
         print("------------ All elements in list are same ------------------")
         # Return a leaf note with this value, depth
+        ret_value = data[0,0]  # CHANGE THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        return TreeNode(labels[0], ret_value, None, None), depth
     else:
-        print('mplaaaaaa')
+        node = find_split(data)
+        l_dataset = data[data[:, node.attribute] < node.value]
+        r_dataset = data[data[:, node.attribute] >= node.value]
+        l_branch, l_depth = decision_tree_learning(count, l_dataset, depth+1)
+        r_branch, r_depth = decision_tree_learning(count, r_dataset, depth+1)
+
+        return node, np.max(l_depth, r_depth)
 
 def entropy(data):
     unique_labels = np.unique(data[:, -1])
@@ -52,6 +56,7 @@ def find_split(data):
     cols = data.shape[1]
 
     for i in range(cols-1):
+        print("---------- Col ", i)
         indices = np.argsort(data[:, i])
         sorted_data = data[indices]
 
@@ -63,8 +68,10 @@ def find_split(data):
         indices = np.where(labels[:-1] != labels[1:])[0]
 
         for idx in indices:
+            print("-------------------- Idx ", idx)
             gain = information_gain(sorted_data, sorted_data[:idx+1, :], sorted_data[idx+1:, :])
             if gain > max_gain:
+                print("Came here!!!!!!!!!!!!!!!!!!!!!!!!!")
                 max_gain = gain
                 max_col = i
                 max_row = idx
@@ -97,4 +104,14 @@ class TreeNode:
         self.left = left
         self.right = right
 
-print(find_split(clean_data).attribute)
+def main():
+    # Load data: Arrays of 2000x8
+    clean_data = np.loadtxt('wifi_db/clean_dataset.txt')
+    noisy_data = np.loadtxt('wifi_db/noisy_dataset.txt')
+
+    depth_val = 0
+    count = -1
+    print(decision_tree_learning(count, clean_data, depth_val))
+
+if __name__ == "__main__": main()
+# print(find_split(clean_data).attribute)
