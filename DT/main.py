@@ -13,8 +13,8 @@ def decision_tree_learning(count, data, depth):
     # Get all labels
     labels = data[:,-1]
     # Check if all samples have the same label
-    result = len(set(labels)) <= 1
-
+    result = len(set(labels)) == 1
+    print(data.shape)
     print("DecisionTreeLEARNING ", count, "----- result: ", result)
     if result:
         print("------------ All elements in list are same ------------------")
@@ -23,12 +23,15 @@ def decision_tree_learning(count, data, depth):
         return TreeNode(labels[0], ret_value, None, None), depth
     else:
         node = find_split(data)
-        l_dataset = data[data[:, node.attribute] < node.value]
-        r_dataset = data[data[:, node.attribute] >= node.value]
+        l_dataset = data[data[:, node.attribute] <= node.value]
+        r_dataset = data[data[:, node.attribute] > node.value]
         l_branch, l_depth = decision_tree_learning(count, l_dataset, depth+1)
-        r_branch, r_depth = decision_tree_learning(count, r_dataset, depth+1)
-
-        return node, np.max(l_depth, r_depth)
+        if len(r_dataset) > 0:
+            r_branch, r_depth = decision_tree_learning(count, r_dataset, depth+1)
+        else:
+            print("mplaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+            pass
+        return node, np.max([l_depth, r_depth])
 
 def entropy(data):
     unique_labels = np.unique(data[:, -1])
@@ -111,7 +114,9 @@ def main():
 
     depth_val = 0
     count = -1
-    print(decision_tree_learning(count, clean_data, depth_val))
+    # mpla_data = clean_data[0:501, :]
+    # print(mpla_data[:,-1])
+    decision_tree_learning(count, clean_data, depth_val)
 
 if __name__ == "__main__": main()
 # print(find_split(clean_data).attribute)
