@@ -14,31 +14,23 @@ def decision_tree_learning(count, data, depth):
     labels = data[:,-1]
     # Check if all samples have the same label
     result = len(set(labels)) == 1
-    print("Data shape: ", data.shape)
-    print("Result:", result)
-    print(set(labels))
-    if count > 5:
-        return None
     if result:
         # Return a leaf note with this value, depth
         return count, Leaf(labels[0]), depth
     else:
         node = find_split(data)
-        print(node.attribute)
-        l_dataset = data[data[:, node.attribute] <= node.value]
-        r_dataset = data[data[:, node.attribute] > node.value]
-        print("Left dataset: ", l_dataset.shape)
-        print("Right dataset: ", r_dataset.shape)
-        if len(r_dataset) == 0:
-            l = l_dataset[:,-1]
-            id = np.where(labels[:-1] != labels[1:])[0]
-            print(id)
-        count, node.left, l_depth = decision_tree_learning(count, l_dataset, depth+1)
-        if len(r_dataset) > 0:
+        if isinstance(node, TreeNode):
+            print(node.attribute)
+            l_dataset = data[data[:, node.attribute] <= node.value]
+            r_dataset = data[data[:, node.attribute] > node.value]
+            count, node.left, l_depth = decision_tree_learning(count, l_dataset, depth+1)
             count, node.right, r_depth = decision_tree_learning(count, r_dataset, depth+1)
+
+            return count, node, np.max([l_depth, r_depth])
+        elif isinstance(node, Leaf):
+            return count, node, depth
         else:
-            pass
-        return count, node, np.max([l_depth, r_depth])
+            print('Error!! Should not reach here!!')
 
 def entropy(data):
     unique_labels = np.unique(data[:, -1])
@@ -70,25 +62,42 @@ def find_split(data):
     max_row, max_col = None, None
 
     for i in range(cols-1):
-        # print("---------- Col ", i)
         indices = np.argsort(data[:, i])
         sorted_data = data[indices]
 
         labels = sorted_data[:, -1]
         indices = np.where(labels[:-1] != labels[1:])[0]
-        # print("Indices: ", indices)
         for idx in indices:
-            # print("-------------------- Idx ", idx)
-            gain = information_gain(sorted_data, sorted_data[:idx+1, :], sorted_data[idx+1:, :])
-            if gain > max_gain:
-                # print("Came here!!!!!!!!!!!!!!!!!!!!!!!!!")
-                max_gain = gain
-                max_col = i
-                max_row = idx
-                split_value = sorted_data[idx, i]
-                # print("Max gain: {}, max_col: {}, max_row: {}, split_value: {}".format(max_gain, max_col, max_row, split_value))
-    # Split node
-    return TreeNode(max_col, split_value, None, None)
+            sval = sorted_data[idx, i]
+            l_dataset = sorted_data[sorted_data[:, i] <= sval]
+            r_dataset = sorted_data[sorted_data[:, i] > sval]
+            if len(r_dataset) != 0:
+                gain = information_gain(sorted_data, l_dataset, r_dataset)
+                if gain > max_gain:
+                    max_gain = gain
+                    max_col = i
+                    max_row = idx
+                    split_value = sorted_data[idx, i]
+                    # print("Max gain: {}, max_col: {}, max_row: {}, split_value: {}".format(max_gain, max_col, max_row, split_value))
+    if max_gain > 0:
+        return TreeNode(max_col, split_value, None, None)
+    else:
+        label = plurality_vote(data)
+        return Leaf(int(label))
+
+def plurality_vote(data):
+    labels = data[:,-1]
+    unique_labels = np.unique(labels)
+    plurality = 0
+    mc_label = -1
+    for label in unique_labels:
+        max_labels = len(labels[labels == label])
+        if  max_labels > plurality:
+            mc_label = label
+            plurality = max_labels
+
+    return mc_label
+
 
 
 class TreeNode:
@@ -102,8 +111,6 @@ class TreeNode:
         return self.left==None and self.right==None
 
     def __str__(self):
-        # return "TreeNode split on attribute:", self.attribute, ", Value:", self.value, \
-        #         self.left.__str__(), self.right.__str__()
         return ', '.join(['{key}={value}'.format(key=key, value=self.__dict__.get(key)) for key in self.__dict__])
 
 class Leaf:
@@ -125,6 +132,7 @@ def main():
     print(x)
     # print(vars(find_split(test_data)))
     # print("Count:", count)
+
 
 if __name__ == "__main__": main()
 # print(find_split(clean_data).attribute)
