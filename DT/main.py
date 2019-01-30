@@ -1,5 +1,6 @@
 import numpy as np
 import sys
+import pruning
 
 def find_number_labels(data):
     unique_labels = np.unique(data[:, -1])
@@ -117,6 +118,9 @@ class Leaf:
     def __init__(self, label):
         self.label = label
 
+    def isLeaf(self):
+        return True
+
     def __str__(self):
         return ', '.join(['{key}={value}'.format(key=key, value=self.__dict__.get(key)) for key in self.__dict__])
 def main():
@@ -130,6 +134,10 @@ def main():
     # print(mpla_data[:,-1])
     count, x, depth_val = decision_tree_learning(count, clean_data, depth_val)
     print(x)
+    #Checking leaves
+    leafNodeCount = 0
+    leafNodeCount = pruning.findLeafNode(x)
+    print(leafNodeCount)
     # print(vars(find_split(test_data)))
     # print("Count:", count)
 
