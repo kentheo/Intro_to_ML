@@ -1,6 +1,8 @@
 import numpy as np
 import sys
 import pruning
+import visualization
+from TreeNode import TreeNode
 
 def find_number_labels(data):
     unique_labels = np.unique(data[:, -1])
@@ -160,32 +162,6 @@ def evaluate(data):
 
     return accuracies
 
-
-class TreeNode:
-    def __init__(self, attribute, value, left, right, isLeaf = False, label = None):
-        self.attribute = attribute
-        self.value = value
-        self.left = left
-        self.right = right
-        self.isLeaf = isLeaf
-        self.label = label
-
-    def isLeaf(self):
-        return self.left==None and self.right==None
-
-    def __str__(self):
-        return ', '.join(['{key}={value}'.format(key=key, value=self.__dict__.get(key)) for key in self.__dict__])
-
-class Leaf:
-    def __init__(self, label):
-        self.label = label
-
-    def isLeaf(self):
-        return True
-
-    def __str__(self):
-        return ', '.join(['{key}={value}'.format(key=key, value=self.__dict__.get(key)) for key in self.__dict__])
-
 def main():
     # Load data: Arrays of 2000x8
     clean_data = np.loadtxt('wifi_db/clean_dataset.txt')
@@ -194,7 +170,7 @@ def main():
     depth_val = 0
     count = -1
     # print(mpla_data[:,-1])
-    #count, x, depth_val = decision_tree_learning(count, clean_data, depth_val)
+    count, x, depth_val = decision_tree_learning(count, clean_data, depth_val)
     #print(x)
     #Checking leaves
     #leafNodeCount = 0
@@ -202,7 +178,10 @@ def main():
     #print(leafNodeCount)
     # print(vars(find_split(test_data)))
     # print("Count:", count)
-    print(evaluate(clean_data))
+    # print(evaluate(clean_data))
+    print(depth_val)
+    visualization.visualizeTree(x, depth_val+1)
+    # visualization.visualizeTree(visualization.createTestTree(5), 5)
 
 
 if __name__ == "__main__": main()
