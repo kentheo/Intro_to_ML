@@ -1,18 +1,16 @@
 from main import TreeNode
-from main import Leaf
+from main import evaluate
 import numpy as np
 
-
-
-
-def findLeafNode(currentNode, head):
+def findLeafNode(currentNode, head, data):
 	count = 0		
-	if not currentNode.left.isLeaf() and not currentNode.right.isLeaf():
-		count += findLeafNode(currentNode.left, head)
-		count += findLeafNode(currentNode.right, head)
+	if not currentNode.left.isLeaf and not currentNode.right.isLeaf:
+		count += findLeafNode(currentNode.left, head, data)
+		count += findLeafNode(currentNode.right, head, data)
 	else:
 		print("Found node")
 		#Perfrom prune test here
+		pruneTest(head, currentNode, data)
 		count += 1
 	return count
 
@@ -30,6 +28,20 @@ def pruneTree(head):
 	else:
 		return False
 
+def pruneTest(head, node, data):
+	local_tree = head
+	pre_error = post_error = 0
+	pre_error = evaluate(data)
+	left = node.left
+	right = node.right
+	removeLeaves(node)
+	post_error = evaluate(data)
+	print("pre: {}".format(pre_error))
+	print("post: {}".format(post_error))
+
+	return
+
+
 def removeLeaves(parent):
 	parent.right = None
 	parent.left = None
@@ -40,28 +52,5 @@ def calculateValidationError(head, trainingData, testData):
 	#averages to get "global error estimate" and returns this
 	return 0
 
-def calculateCVAccuracy(head):
-	trainingDataset = np.loadtxt('wifi_db/clean_dataset.txt')
-	folds = splitDataset(trainingDataset)
-	global_error = 0
-	for i in range(10):
-		testFold = folds[i]
-		#Gets other 9 folds for training/validation
-		trainingFolds = folds - testFold
-
-		global_error += calculateValidationError(head, trainingFolds, testFold)
-	#Returns average global error
-	return global_error/10
-
-
-def splitDataset(dataset):
-	fold_length = len(dataset) / 10
-	folds = []
-	#Splits dataset into 10 equal size folds
-	for i in range(10):
-		startIndex = int(i * fold_length)
-		endIndex = int((i+1) * fold_length)
-		folds.append(dataset[startIndex:endIndex])
-	return folds
 
 if __name__ == "__main__": calculateCVAccuracy(1)
