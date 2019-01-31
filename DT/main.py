@@ -17,18 +17,20 @@ def decision_tree_learning(count, data, depth):
     result = len(set(labels)) == 1
     if result:
         # Return a leaf note with this value, depth
-        return count, Leaf(labels[0]), depth
+        #return count, Leaf(labels[0]), depth
+        return count, TreeNode(None, None, None, None, True, int(labels[0])), depth
     else:
         node = find_split(data)
-        if isinstance(node, TreeNode):
-            print(node.attribute)
+        #if isinstance(node, TreeNode):
+        if node.isLeaf == False:
             l_dataset = data[data[:, node.attribute] <= node.value]
             r_dataset = data[data[:, node.attribute] > node.value]
             count, node.left, l_depth = decision_tree_learning(count, l_dataset, depth+1)
             count, node.right, r_depth = decision_tree_learning(count, r_dataset, depth+1)
 
             return count, node, np.max([l_depth, r_depth])
-        elif isinstance(node, Leaf):
+        #elif isinstance(node, Leaf):
+        elif node.isLeaf:
             return count, node, depth
         else:
             print('Error!! Should not reach here!!')
@@ -84,7 +86,8 @@ def find_split(data):
         return TreeNode(max_col, split_value, None, None)
     else:
         label = plurality_vote(data)
-        return Leaf(int(label))
+        #return Leaf(int(label))
+        return TreeNode(None, None, None, None, True, int(label))
 
 def plurality_vote(data):
     labels = data[:,-1]
@@ -99,14 +102,73 @@ def plurality_vote(data):
 
     return mc_label
 
+def create_folds(data, n_folds = 10):
+    '''
+    params:
+        data: dataset to be split
+        n_folds: number of folds to create, defaults to 10
+
+    returns:
+        list of folds, equal length if data is divisible by folds, else some
+        folds will be longer by 1
+    '''
+    np.random.shuffle(data)
+    folds = np.array_split(data, n_folds)
+    return folds
+
+
+def classify(sample, decision_tree):
+    '''
+    params:
+        sample: input to classify
+        decison_tree: learned function based
+
+    returns:
+        expected class label
+    '''
+    if decision_tree.isLeaf:
+        return decision_tree.label
+    else:
+        feature, value = decision_tree.attribute, decision_tree.value
+        if sample[feature] <= value:
+            return classify(sample, decision_tree.left)
+        else:
+            return classify(sample, decision_tree.right)
+
+
+def evaluate(data):
+    folds = create_folds(data)
+    # split into test and training arrays
+    accuracies = []
+    for i in range(len(folds)):
+        test = folds[i]
+        training = np.concatenate(folds[:i] + folds[i+1:], axis = 0)
+        count, tree, depth = decision_tree_learning(-1, training, 0)
+
+        right = 0
+        wrong = 0
+
+        for i in range(test.shape[0]):
+            guess = classify(test[i], tree)
+            if test[i][-1] == guess:
+                right += 1
+            else:
+                wrong += 1
+        print(depth)
+
+        accuracies.append( right / (right + wrong) )
+
+    return accuracies
 
 
 class TreeNode:
-    def __init__(self, attribute, value, left, right):
+    def __init__(self, attribute, value, left, right, isLeaf = False, label = None):
         self.attribute = attribute
         self.value = value
         self.left = left
         self.right = right
+        self.isLeaf = isLeaf
+        self.label = label
 
     def isLeaf(self):
         return self.left==None and self.right==None
@@ -123,6 +185,7 @@ class Leaf:
 
     def __str__(self):
         return ', '.join(['{key}={value}'.format(key=key, value=self.__dict__.get(key)) for key in self.__dict__])
+
 def main():
     # Load data: Arrays of 2000x8
     clean_data = np.loadtxt('wifi_db/clean_dataset.txt')
@@ -130,16 +193,16 @@ def main():
     test_data = np.loadtxt('test_01.txt')
     depth_val = 0
     count = -1
-    mpla_data = clean_data[0:501, :]
     # print(mpla_data[:,-1])
-    count, x, depth_val = decision_tree_learning(count, clean_data, depth_val)
-    print(x)
+    #count, x, depth_val = decision_tree_learning(count, clean_data, depth_val)
+    #print(x)
     #Checking leaves
-    leafNodeCount = 0
-    leafNodeCount = pruning.findLeafNode(x)
-    print(leafNodeCount)
+    #leafNodeCount = 0
+    #leafNodeCount = pruning.findLeafNode(x)
+    #print(leafNodeCount)
     # print(vars(find_split(test_data)))
     # print("Count:", count)
+    print(evaluate(clean_data))
 
 
 if __name__ == "__main__": main()
