@@ -1,12 +1,11 @@
-from main import TreeNode
-from main import Leaf
+from TreeNode import TreeNode
 import numpy as np
 
 
 
 
 def findLeafNode(currentNode, head):
-	count = 0		
+	count = 0
 	if not currentNode.left.isLeaf() and not currentNode.right.isLeaf():
 		count += findLeafNode(currentNode.left, head)
 		count += findLeafNode(currentNode.right, head)
@@ -33,7 +32,7 @@ def pruneTree(head):
 def removeLeaves(parent):
 	parent.right = None
 	parent.left = None
-	return		
+	return
 
 def calculateValidationError(head, trainingData, testData):
 	#Calls evaluate() func to get error for each fold of 10-fold cross validation
