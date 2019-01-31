@@ -1,26 +1,65 @@
 from main import TreeNode
 from main import Leaf
+import numpy as np
 
 
 
 
-def findLeafNode(currentNode):
+def findLeafNode(currentNode, head):
 	count = 0		
 	if not currentNode.left.isLeaf() and not currentNode.right.isLeaf():
-		count += findLeafNode(currentNode.left)
-		count += findLeafNode(currentNode.right)
+		count += findLeafNode(currentNode.left, head)
+		count += findLeafNode(currentNode.right, head)
 	else:
 		print("Found node")
+		#removeLeaves(currentNode)
+		#print(pruneTree(head))
 		count += 1
 	return count
 
-def pruneTree():
-	print("Gotta do some work")
-	#navigate tree to leaf level -1 (node before leaves)
-	#f
+#Works out if leaves should be pruned. Returns true if leaves pruned, false if tree is the same.
+def pruneTree(head):
+	local_tree = head
+	pre_error = post_error = 0
+	pre_error = calculateValidationError(head)
 
-def calculateValidationError():
-	return
+	#Remove leafNodes from local_tree
+	post_error = calculateValidationError(local_tree)
+	if pre_error > post_error:
+		head = local_tree
+		return True
+	else:
+		return False
+
+def removeLeaves(parent):
+	parent.right = None
+	parent.left = None
+	return		
+
+def calculateValidationError(head):
+	#Calls evaluate() func to get error for each fold of 10-fold cross validation
+	#averages to get "global error estimate" and returns this
+	return 0
+
+def calculateCVAccuracy(head, trainingDataset, testDataset):
+	trainingDataset = np.loadtxt('wifi_db/clean_dataset.txt')
+	folds = splitDataset(trainingDataset)
+	print(len(trainingDataset))
+	for i in range(10):
+		testFold = folds[i]
+		#Gets other 9 folds for training/validation
+		trainingFolds = folds - folds[i]
 
 
-if __name__ == "__main__": pruneTree()
+def splitDataset(dataset):
+	fold_length = len(dataset) / 10
+	folds = []
+	#Splits dataset into 10 equal size folds
+	for i in range(10):
+		startIndex = int(i * fold_length)
+		endIndex = int((i+1) * fold_length)
+		folds.append(dataset[startIndex:endIndex])
+
+	return folds
+
+if __name__ == "__main__": calculateCVAccuracy(1, 2, 3)
