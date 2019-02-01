@@ -123,7 +123,7 @@ def classify(sample, decision_tree):
     '''
     params:
         sample: input to classify
-        decison_tree: learned function based
+        decison_tree: TreeNode object to run over for classification
 
     returns:
         expected class label
@@ -138,7 +138,27 @@ def classify(sample, decision_tree):
             return classify(sample, decision_tree.right)
 
 
-def evaluate(data):
+def report_accuracy(data, tree):
+    '''
+    params:
+        data: samples to run predictions on
+        tree: learned function to use for prediction
+
+    returns:
+        overall prediction accuracy in range [0 1]
+    '''
+    right = 0
+    wrong = 0
+    for i in range(data.shape[0]):
+        guess = classify(data[i], tree)
+        if data[i][-1] == guess:
+            right += 1
+        else:
+            wrong += 1
+    return (right / (right + wrong) )
+
+
+    ''' homeless code
     folds = create_folds(data)
     # split into test and training arrays
     accuracies = []
@@ -146,21 +166,8 @@ def evaluate(data):
         test = folds[i]
         training = np.concatenate(folds[:i] + folds[i+1:], axis = 0)
         count, tree, depth = decision_tree_learning(-1, training, 0)
-
-        right = 0
-        wrong = 0
-
-        for i in range(test.shape[0]):
-            guess = classify(test[i], tree)
-            if test[i][-1] == guess:
-                right += 1
-            else:
-                wrong += 1
-        print(depth)
-
-        accuracies.append( right / (right + wrong) )
-
     return accuracies
+    '''
 
 def main():
     # Load data: Arrays of 2000x8
