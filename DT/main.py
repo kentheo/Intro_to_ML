@@ -25,6 +25,10 @@ def decision_tree_learning(count, data, depth):
         node = find_split(data)
         #if isinstance(node, TreeNode):
         if node.isLeaf == False:
+
+            # this should be adding label to tree as we go - NEED TO TEST
+            node.label = plurality_vote(data)
+
             l_dataset = data[data[:, node.attribute] <= node.value]
             r_dataset = data[data[:, node.attribute] > node.value]
             count, node.left, l_depth = decision_tree_learning(count, l_dataset, depth+1)
