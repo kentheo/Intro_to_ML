@@ -3,6 +3,7 @@ import sys
 import pruning
 import visualization
 from TreeNode import TreeNode
+from evaluation import *
 
 def find_number_labels(data):
     unique_labels = np.unique(data[:, -1])
@@ -108,77 +109,6 @@ def plurality_vote(data):
 
     return mc_label
 
-def create_folds(data, n_folds = 10):
-    '''
-    params:
-        data: dataset to be split
-        n_folds: number of folds to create, defaults to 10
-
-    returns:
-        list of folds, equal length if data is divisible by folds, else some
-        folds will be longer by 1
-    '''
-    np.random.shuffle(data)
-    folds = np.array_split(data, n_folds)
-    return folds
-
-
-def classify(sample, decision_tree):
-    '''
-    params:
-        sample: input to classify
-        decison_tree: TreeNode object to run over for classification
-
-    returns:
-        expected class label
-    '''
-    if decision_tree.isLeaf:
-        return decision_tree.label
-    else:
-        feature, value = decision_tree.attribute, decision_tree.value
-        if sample[feature] <= value:
-            return classify(sample, decision_tree.left)
-        else:
-            return classify(sample, decision_tree.right)
-
-
-def run_samples(data, tree, confusion = False):
-    '''
-    params:
-        data: samples to run predictions on
-        tree: learned function to use for prediction
-        confusion: Boolean to determine whether to compute confusion matrix
-
-    returns:
-        overall prediction accuracy in range [0 1]
-        confusion matrix (will be full of zeros if input confusion = False)
-    '''
-    right = 0
-    wrong = 0
-    confusion_matrix = np.zeros((4,4))
-    for i in range(data.shape[0]):
-        guess = classify(data[i], tree)
-        if data[i][-1] == guess:
-            right += 1
-        else:
-            wrong += 1
-        if confusion:
-            confusion_matrix[int(data[i][-1]) - 1][guess - 1] += 1
-
-    return (right / (right + wrong) ), confusion_matrix
-
-
-    ''' homeless code
-    folds = create_folds(data)
-    # split into test and training arrays
-    accuracies = []
-    for i in range(len(folds)):
-        test = folds[i]
-        training = np.concatenate(folds[:i] + folds[i+1:], axis = 0)
-        count, tree, depth = decision_tree_learning(-1, training, 0)
-    return accuracies
-    '''
-
 def main():
     # Load data: Arrays of 2000x8
     clean_data = np.loadtxt('wifi_db/clean_dataset.txt')
@@ -199,16 +129,17 @@ def main():
     #print(depth_val)
     #visualization.visualizeTree(x, depth_val+1)
     # visualization.visualizeTree(visualization.createTestTree(5), 5)
-    samples = noisy_data[:200, :]
-    accuracy, confusion = run_samples(samples, x, True)
-    print(accuracy)
-    print(confusion)
+    # samples = noisy_data[:200, :]
+    # accuracy, confusion = run_samples(samples, x, True)
+    # print(accuracy)
+    # print(confusion)
 
-    samples_clean = clean_data[400:600, :]
-    accuracy_clean, conf_clean = run_samples(samples_clean, x, True)
-    print('Should be 100 %% since complete tree')
-    print(accuracy_clean)
-    print(conf_clean)
+    # samples_clean = clean_data[400:600, :]
+    # accuracy_clean, conf_clean = run_samples(samples_clean, x, True)
+    # print('Should be 100 %% since complete tree')
+    # print(accuracy_clean)
+    # print(conf_clean)
+
 
 if __name__ == "__main__": main()
 # print(find_split(clean_data).attribute)
