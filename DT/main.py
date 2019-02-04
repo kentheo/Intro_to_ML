@@ -142,24 +142,30 @@ def classify(sample, decision_tree):
             return classify(sample, decision_tree.right)
 
 
-def report_accuracy(data, tree):
+def run_samples(data, tree, confusion = False):
     '''
     params:
         data: samples to run predictions on
         tree: learned function to use for prediction
+        confusion: Boolean to determine whether to compute confusion matrix
 
     returns:
         overall prediction accuracy in range [0 1]
+        confusion matrix (will be full of zeros if input confusion = False)
     '''
     right = 0
     wrong = 0
+    confusion_matrix = np.zeros((4,4))
     for i in range(data.shape[0]):
         guess = classify(data[i], tree)
         if data[i][-1] == guess:
             right += 1
         else:
             wrong += 1
-    return (right / (right + wrong) )
+        if confusion:
+            confusion_matrix[int(data[i][-1]) - 1][guess - 1] += 1
+
+    return (right / (right + wrong) ), confusion_matrix
 
 
     ''' homeless code
@@ -190,10 +196,19 @@ def main():
     # print(vars(find_split(test_data)))
     # print("Count:", count)
     # print(evaluate(clean_data))
-    print(depth_val)
-    visualization.visualizeTree(x, depth_val+1)
+    #print(depth_val)
+    #visualization.visualizeTree(x, depth_val+1)
     # visualization.visualizeTree(visualization.createTestTree(5), 5)
+    samples = noisy_data[:200, :]
+    accuracy, confusion = run_samples(samples, x, True)
+    print(accuracy)
+    print(confusion)
 
+    samples_clean = clean_data[400:600, :]
+    accuracy_clean, conf_clean = run_samples(samples_clean, x, True)
+    print('Should be 100 %% since complete tree')
+    print(accuracy_clean)
+    print(conf_clean)
 
 if __name__ == "__main__": main()
 # print(find_split(clean_data).attribute)
