@@ -1,7 +1,7 @@
 from TreeNode import TreeNode
 import numpy as np
-import main
-import evaluation
+from main import *
+from evaluation import *
 
 
 
@@ -15,14 +15,14 @@ def findLeafNode(currentNode, head, data):
 		print("Found node")
 		#Perfrom prune test here
 
-		acc1 = evaluation.evaluate(data, head, True)
+		acc1 = evaluate(data, head, False)
 		print("ACC1: {}".format(acc1[0]))
 		left = currentNode.left
 		right = currentNode.right
 
 		removeLeaves(currentNode)
 
-		acc2 = evaluation.evaluate(data, head, True)
+		acc2 = evaluate(data, head, False)
 		print("ACC2: {}".format(acc2[0]))
 		if acc1[0] > acc2[0]:
 			print("Shouldnt prune")
@@ -46,19 +46,19 @@ if __name__ == "__main__":
 	clean_data = np.loadtxt('wifi_db/clean_dataset.txt')
 	noisy_data = np.loadtxt('wifi_db/noisy_dataset.txt')
 	
-	folds = main.create_folds(clean_data)
+	folds = create_folds(clean_data)
 	training = folds[0]
 	testing = folds[2]
 
 	np.append(training, folds[7])
 	np.append(testing, folds[8])
-	count, x, depth = main.decision_tree_learning(-1, training, 0)
-	acc, cm = evaluation.evaluate(clean_data, x, True)
+	count, x, depth = decision_tree_learning(-1, training, 0)
+	acc, cm = evaluate(clean_data, x, False)
 	print(acc)
 	nodes_pruned = 1
 	while nodes_pruned > 0:
 		nodes_pruned = findLeafNode(x, x, testing)
-		acc, cm = evaluation.evaluate(clean_data, x, True)
+		acc, cm = evaluate(clean_data, x, False)
 	
 		print(acc)
 		print(nodes_pruned)
