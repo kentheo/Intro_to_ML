@@ -22,16 +22,16 @@ def findLeafNode(currentNode, head, data):
 	else:
 		print("Found node")
 
-		acc1 = evaluate(data, head)
-		print("ACC1: {}".format(acc1[0]))
+		acc1, cm = evaluate(data, head)
+		print("ACC1: {}".format(acc1))
 		left = currentNode.left
 		right = currentNode.right
 
 		removeLeaves(currentNode)
 
-		acc2 = evaluate(data, head)
-		print("ACC2: {}".format(acc2[0]))
-		if acc1[0] > acc2[0]:
+		acc2, cm = evaluate(data, head)
+		print("ACC2: {}".format(acc2))
+		if acc1 > acc2:
 			print("Shouldnt prune")
 			currentNode.left = left
 			currentNode.right = right
@@ -64,8 +64,9 @@ def pruneTree(tree, validation_data):
 	while nodes_pruned > 0:
 		nodes_pruned = findLeafNode(tree, tree, validation_data)
 		#Just here for testing purposes
-		acc, cm = evaluate(clean_data, x)
+		acc, cm = evaluate(clean_data, tree)
 		print(acc)
+		#print("CM: {}".format(cm))
 		print(nodes_pruned)
 
 	return tree
@@ -78,10 +79,10 @@ if __name__ == "__main__":
 	training = folds[0]
 	testing = folds[2]
 
-	np.append(training, folds[7])
-	np.append(testing, folds[8])
+	#np.append(training, folds[7])
+	#np.append(testing, folds[8])
 	count, x, depth = decision_tree_learning(-1, training, 0)
-	acc, cm = evaluate(clean_data, x)
-	print(acc)
+	#acc, cm = evaluate(clean_data, x)
+	#print(acc)
 	pruneTree(x, folds[5])
 	
