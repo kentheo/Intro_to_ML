@@ -3,17 +3,24 @@ import numpy as np
 from main import *
 from evaluation import *
 
-
-
-
 def findLeafNode(currentNode, head, data):
+	'''
+	params:
+		currentNode: The current location in the decision tree
+		head: The head of the decision tree
+		data: The data used to evaluate the decision tree and determine if prune
+		should occur or not
+
+	returns:
+		The count of the number of prunes that occurred during this iteration of tree
+		evaluation.
+	'''
 	count = 0
 	if not currentNode.left.isLeaf and not currentNode.right.isLeaf:
 		count += findLeafNode(currentNode.left, head, data)
 		count += findLeafNode(currentNode.right, head, data)
 	else:
 		print("Found node")
-		#Perfrom prune test here
 
 		acc1 = evaluate(data, head, False)
 		print("ACC1: {}".format(acc1[0]))
@@ -36,6 +43,10 @@ def findLeafNode(currentNode, head, data):
 
 
 def removeLeaves(parent):
+	'''
+	params:
+		parent: The TreeNode which is having it's leaves removed
+	'''
 	parent.right = None
 	parent.left = None
 	parent.isLeaf = True
