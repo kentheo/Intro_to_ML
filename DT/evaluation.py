@@ -55,7 +55,8 @@ def evaluate(data, tree):
             right += 1
         else:
             wrong += 1
-        confusion_matrix[int(data[i][-1]) - 1][guess - 1] += 1
+
+        confusion_matrix[int(data[i][-1]) - 1][int(guess) - 1] += 1
     accuracy = (right / (right + wrong))
     print("----------", confusion_matrix)
     return accuracy, confusion_matrix
