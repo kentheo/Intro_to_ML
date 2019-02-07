@@ -22,14 +22,14 @@ def findLeafNode(currentNode, head, data):
 	else:
 		print("Found node")
 
-		acc1 = evaluate(data, head, False)
+		acc1 = evaluate(data, head)
 		print("ACC1: {}".format(acc1[0]))
 		left = currentNode.left
 		right = currentNode.right
 
 		removeLeaves(currentNode)
 
-		acc2 = evaluate(data, head, False)
+		acc2 = evaluate(data, head)
 		print("ACC2: {}".format(acc2[0]))
 		if acc1[0] > acc2[0]:
 			print("Shouldnt prune")
@@ -52,6 +52,23 @@ def removeLeaves(parent):
 	parent.isLeaf = True
 	return
 
+def pruneTree(tree, validation_data):
+	'''
+		params:
+			tree: The decision tree to be pruned
+			validation_data: The dataset used to evaluate the tree performance
+		returns:
+			The pruned tree
+	'''
+	nodes_pruned = 1
+	while nodes_pruned > 0:
+		nodes_pruned = findLeafNode(tree, tree, validation_data)
+		#Just here for testing purposes
+		acc, cm = evaluate(clean_data, x)
+		print(acc)
+		print(nodes_pruned)
+
+	return tree
 
 if __name__ == "__main__":
 	clean_data = np.loadtxt('wifi_db/clean_dataset.txt')
@@ -64,12 +81,7 @@ if __name__ == "__main__":
 	np.append(training, folds[7])
 	np.append(testing, folds[8])
 	count, x, depth = decision_tree_learning(-1, training, 0)
-	acc, cm = evaluate(clean_data, x, False)
+	acc, cm = evaluate(clean_data, x)
 	print(acc)
-	nodes_pruned = 1
-	while nodes_pruned > 0:
-		nodes_pruned = findLeafNode(x, x, testing)
-		acc, cm = evaluate(clean_data, x, False)
-
-		print(acc)
-		print(nodes_pruned)
+	pruneTree(x, folds[5])
+	
