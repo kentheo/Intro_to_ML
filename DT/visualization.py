@@ -4,7 +4,8 @@ import random
 from TreeNode import TreeNode
 # Set up fig, ax
 def visualizeTree(head, depth):
-
+    # Depth is -1 from drawTree, so increment it
+    depth += 1
     if head == None:
     	return
 
@@ -29,7 +30,7 @@ def visualizeTree(head, depth):
 def drawTree(head, depth, x, y, fig, ax, LR):
     # Prepare Parameters
     lines = []
-    print("DEPTH:", depth)
+
     x_offset = (2 ** depth) / 20
     y_offset = 0.08
 
@@ -54,11 +55,12 @@ def drawTree(head, depth, x, y, fig, ax, LR):
     	ax.add_collection(lc)
 
     else:
-    	string = "leaf: "
-    	if LR == 'L':
-    		string += "1.00"
-    	elif LR == 'R':
-    		string += "0.00"
+        string = "Class " + str(head.label)
+    	# string = "leaf: "
+    	# if LR == 'L':
+    	# 	string += "1.00"
+    	# elif LR == 'R':
+    	# 	string += "0.00"
 
     ax.text(x, y, string, color='black', horizontalalignment='center', zorder=10,
             bbox=dict(facecolor='none', edgecolor='blue'))

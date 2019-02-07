@@ -1,6 +1,6 @@
-from TreeNode import TreeNode
 import numpy as np
 from main import *
+from TreeNode import TreeNode
 from evaluation import *
 
 def findLeafNode(currentNode, head, data):
@@ -53,10 +53,10 @@ def removeLeaves(parent):
 	return
 
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
 	clean_data = np.loadtxt('wifi_db/clean_dataset.txt')
 	noisy_data = np.loadtxt('wifi_db/noisy_dataset.txt')
-	
+
 	folds = create_folds(clean_data)
 	training = folds[0]
 	testing = folds[2]
@@ -70,7 +70,6 @@ if __name__ == "__main__":
 	while nodes_pruned > 0:
 		nodes_pruned = findLeafNode(x, x, testing)
 		acc, cm = evaluate(clean_data, x, False)
-	
+
 		print(acc)
 		print(nodes_pruned)
-

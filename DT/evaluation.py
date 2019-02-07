@@ -1,5 +1,5 @@
 import numpy as np
-from TreeNode import TreeNode
+from TreeNode import *
 
 def create_folds(data, n_folds = 10):
     '''
@@ -35,7 +35,7 @@ def classify(sample, decision_tree):
             return classify(sample, decision_tree.right)
 
 
-def evaluate(data, tree, confusion):
+def evaluate(data, tree):
     '''
     params:
         data: samples to run predictions on
@@ -55,10 +55,9 @@ def evaluate(data, tree, confusion):
             right += 1
         else:
             wrong += 1
-        if confusion:
-            confusion_matrix[int(data[i][-1]) - 1][guess - 1] += 1
+        confusion_matrix[int(data[i][-1]) - 1][guess - 1] += 1
     accuracy = (right / (right + wrong))
-
+    print("----------", confusion_matrix)
     return accuracy, confusion_matrix
 
 
@@ -70,7 +69,9 @@ def k_fold_cv(data, k = 10):
         test = folds[i]
         training = np.concatenate(folds[:i] + folds[i+1:], axis = 0)
         count, tree, depth = decision_tree_learning(-1, training, 0)
-        conf_matrices.append(evaluate(test, tree))
+        acc, conf_matrix = evaluate(test, tree)
+        conf_matrices.append(conf_matrix)
+        print("Fold {}: Accuracy: {}".format(i, acc))
     return conf_matrices
 
 # Returns all performance metrics
@@ -83,9 +84,10 @@ def evaluation(data, k = 10):
 
     for i in range(len(conf_matrices)):
         matrix = conf_matrices[i]
+        j = 0
         for j in range(4):
-            recall[i][j] = compute_recall(matrix, i+1)
-            precision[i][j] = compute_precision(matrix, i+1)
+            recall[i][j] = compute_recall(matrix, j+1)
+            precision[i][j] = compute_precision(matrix, j+1)
             f1_score[i][j] = compute_f1(recall[i][j], precision[i][j])
         classification_rate[i] = compute_classification_rate(matrix)
 
@@ -103,12 +105,13 @@ def compute_recall(confusion_matrix, label):
     :return: Recall value of class
     '''
     # Recall = TP / (TP + FN)
+    print(confusion_matrix)
     i = label - 1
     tp = confusion_matrix[i][i]
 
     # Row of confusion matrix including TP, FN
-    fn_tp = np.sum(confusion_matrix, axis=0)[i]
-
+    fn_tp = np.sum(confusion_matrix, axis=1)[i]
+    print("fn_tp", fn_tp)
     return tp / fn_tp
 
 def compute_precision(confusion_matrix, label):
@@ -122,8 +125,8 @@ def compute_precision(confusion_matrix, label):
     tp = confusion_matrix[i][i]
 
     # Column of confusion matrix including TP, FP
-    fp_tp = np.sum(confusion_matrix, axis=1)[i]
-
+    fp_tp = np.sum(confusion_matrix, axis=0)[i]
+    # print("fp_tp", fp_tp)
     return tp / fp_tp
 
 def compute_f1(recall, precision):
