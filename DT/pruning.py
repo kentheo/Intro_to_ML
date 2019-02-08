@@ -2,6 +2,7 @@ import numpy as np
 from main import *
 from TreeNode import TreeNode
 from evaluation import *
+from visualization import *
 
 def findLeafNode(currentNode, head, data):
 	'''
@@ -44,18 +45,18 @@ def findLeafNode(currentNode, head, data):
 	return count
 
 def findDepth(tree):
-	depth1 = 1
-	depth2 = 1
+	depth1 = 0
+	depth2 = 0
 	if not tree.left.isLeaf:
-		depth1 += 1
+		#depth1 += 1
 		depth1 += findDepth(tree.left)
 	if not tree.right.isLeaf:
-		depth2 += 1
+		#depth2 += 1
 		depth2 += findDepth(tree.right)
 	if depth1 > depth2:
-		return depth1
+		return depth1 + 1
 	else:
-		return depth2
+		return depth2 + 1
 
 
 def removeLeaves(parent):
@@ -92,19 +93,20 @@ if __name__ == "__main__":
 	clean_data = np.loadtxt('wifi_db/clean_dataset.txt')
 	noisy_data = np.loadtxt('wifi_db/noisy_dataset.txt')
 	data = np.loadtxt('test_01.txt')
-	#folds = create_folds(clean_data)
-	#training = folds[0]
-	#esting = folds[2]
-	training = data[0:11]
-	testing = data[12:]
+	folds = create_folds(clean_data)
+	training = folds[0]
+	testing = folds[2]
+	#training = data[0:11]
+	#testing = data[12:]
 
 	
-	#np.append(training, folds[7])
-	#np.append(testing, folds[8])
+	np.append(training, folds[7])
+	np.append(testing, folds[8])
 	x, depth = decision_tree_learning(training, 0)
 	#acc, cm = evaluate(clean_data, x)
 	#print(acc)
 	#print(findDepth(x))
 	depth = findDepth(x)
 	print("Depth: {}".format(depth))
-	tree = pruneTree(x, testing)
+	visualizeTree(x, depth)
+	#tree = pruneTree(x, testing)
