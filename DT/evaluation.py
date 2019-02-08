@@ -61,7 +61,7 @@ def evaluate(data, tree):
     return accuracy, confusion_matrix
 
 
-def k_fold_cv(data, k = 10):
+def k_fold_cv(data, k = 10, pruning = False):
     folds = create_folds(data, k)
     # split into test and training arrays
     conf_matrices = []
@@ -69,13 +69,17 @@ def k_fold_cv(data, k = 10):
         test = folds[i]
         training = np.concatenate(folds[:i] + folds[i+1:], axis = 0)
         tree, depth = decision_tree_learning(training, 0)
+
+        if pruning:
+            tree = pruneTree(tree, test)
+
         acc, conf_matrix = evaluate(test, tree)
         conf_matrices.append(conf_matrix)
         print("Fold {}: Accuracy: {}".format(i, acc))
     return conf_matrices
 
-# Returns all performance metrics
-def evaluation(data, k = 10):
+# Perform Step 3: Evaluation as a whole
+def evaluation_step3(data, k = 10):
     conf_matrices = k_fold_cv(data, k)
     recall = np.zeros((k, 4))
     precision = np.zeros((k, 4))
@@ -91,10 +95,33 @@ def evaluation(data, k = 10):
             f1_score[i][j] = compute_f1(recall[i][j], precision[i][j])
         classification_rate[i] = compute_classification_rate(matrix)
 
-    avg_recall = np.mean(recall, axis=1)
-    avg_precision = np.mean(precision, axis=1)
-    avg_f1_score = np.mean(f1_score, axis=1)
+    avg_recall = np.mean(recall, axis=0)
+    avg_precision = np.mean(precision, axis=0)
+    avg_f1_score = np.mean(f1_score, axis=0)
     avg_class_rate = np.mean(classification_rate)
+
+    return avg_recall, avg_precision, avg_f1_score, avg_class_rate
+
+# Currently, main function uses this method
+def evaluation(data, k = 10, pruning = False):
+    conf_matrices = k_fold_cv(data, k)
+    avg_conf_matrix = np.zeros((4, 4))
+
+    for i in range(len(conf_matrices)):
+        avg_conf_matrix += conf_matrices[i]
+    avg_conf_matrix /= len(conf_matrices)
+
+    # Compute avg performance metrics for each class
+    avg_recall = np.zeros(4)
+    avg_precision = np.zeros(4)
+    avg_f1_score = np.zeros(4)
+    avg_class_rate = 0
+    for i in range(4):
+        avg_recall[i] = compute_recall(avg_conf_matrix, i+1)
+        avg_precision[i] = compute_precision(avg_conf_matrix, i+1)
+        avg_f1_score[i] = compute_f1(avg_recall[i], avg_precision[i])
+
+    avg_class_rate = compute_classification_rate(avg_conf_matrix)
 
     return avg_recall, avg_precision, avg_f1_score, avg_class_rate
 

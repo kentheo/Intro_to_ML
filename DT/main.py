@@ -38,9 +38,9 @@ def main():
     elif task == 'evaluation':
         avg_recall, avg_precision, avg_f1_score, avg_class_rate = evaluation(data)
         print('----------- Performance Metrics after K Fold Validation ------------------')
-        print("Average Recall for each Fold:", avg_recall)
-        print("Average Precision for each Fold:", avg_precision)
-        print("Average F1 Score for each Fold:", avg_f1_score)
+        print("Average Recall for each Class:", avg_recall)
+        print("Average Precision for each Class:", avg_precision)
+        print("Average F1 Score for each Class:", avg_f1_score)
         print("Average Classification Rate of K Fold Validation:", avg_class_rate)
     elif task == 'pruning':
         folds = create_folds(data)
