@@ -22,6 +22,7 @@ def main():
         # !! Must be modified by tester !!
         data = np.loadtxt('to/be/provided/by/tester')
 
+    # Check task to perform
     if task == 'creation':
         # Initialisation of depth variable to be incremented by Decision Tree algorithm
         depth_val = 0
@@ -43,17 +44,12 @@ def main():
         print("Average F1 Score for each Class:", avg_f1_score)
         print("Average Classification Rate of K Fold Validation:", avg_class_rate)
     elif task == 'pruning':
-        folds = create_folds(data)
-        training = folds[0]
-        testing = folds[2]
-    	# Initialisation of depth variable to be incremented by Decision Tree algorithm
-        depth_val = 0
-        # Method to produce a Tree
-        tree, depth_val = decision_tree_learning(training, depth_val)
-        print("BEFORE PRUNING: Depth of created tree:", depth_val)
-
-        pruned_tree = pruneTree(tree, folds[5])
-        # print("AFTER PRUNING: Depth of created tree:", depth_val)
+        avg_recall, avg_precision, avg_f1_score, avg_class_rate = evaluation(data, pruning = True)
+        print('----------- Performance Metrics after K Fold Validation ------------------')
+        print("Average Recall for each Class:", avg_recall)
+        print("Average Precision for each Class:", avg_precision)
+        print("Average F1 Score for each Class:", avg_f1_score)
+        print("Average Classification Rate of K Fold Validation:", avg_class_rate)
 
 if __name__ == "__main__": main()
 # print(find_split(clean_data).attribute)
