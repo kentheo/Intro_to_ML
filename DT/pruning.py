@@ -26,14 +26,14 @@ def findLeafNode(currentNode, head, data):
 	else:
 		print("Found node")
 		acc1, cm = evaluate(data, head)
-		print("ACC1: {}".format(acc1))
+		print("ACC1: {:.3f}".format(acc1))
 		left = currentNode.left
 		right = currentNode.right
 
 		removeLeaves(currentNode)
 
 		acc2, cm = evaluate(data, head)
-		print("ACC2: {}".format(acc2))
+		print("ACC2: {:.3f}".format(acc2))
 		if acc1 > acc2:
 			print("Shouldnt prune")
 			currentNode.left = left
@@ -85,28 +85,52 @@ def pruneTree(tree, validation_data):
 		acc, cm = evaluate(validation_data, tree)
 		#print(acc)
 		#print("CM: {}".format(cm))
-		print(nodes_pruned)
+		print("Nodes Pruned:", nodes_pruned)
 
 	return tree
 
+# Returns the number of nodes in a tree
+def countNodes(root):
+
+	count = 0
+
+	if root is not None:
+		count = 1
+
+		if root.left is not None:
+		    count += countNodes(root.left)
+		if root.right is not None:
+		    count += countNodes(root.right)
+	return count
+
 if __name__ == "__main__":
+	
 	clean_data = np.loadtxt('wifi_db/clean_dataset.txt')
 	noisy_data = np.loadtxt('wifi_db/noisy_dataset.txt')
 	data = np.loadtxt('test_01.txt')
-	folds = create_folds(clean_data)
-	training = folds[0]
-	testing = folds[2]
-	#training = data[0:11]
-	#testing = data[12:]
+	folds = create_folds(noisy_data)
+	print("folds: {}".format(len(folds)))
 
-	
-	np.append(training, folds[7])
-	np.append(testing, folds[8])
+	training = np.concatenate(folds[1:10], axis = 0)
+	testing = folds[0]
+
+	print("train: {}".format(training.shape))
+	print("test: {}".format(testing.shape))
+
 	x, depth = decision_tree_learning(training, 0)
-	#acc, cm = evaluate(clean_data, x)
-	#print(acc)
-	#print(findDepth(x))
-	depth = findDepth(x)
-	print("Depth: {}".format(depth))
-	visualizeTree(x, depth)
-	#tree = pruneTree(x, testing)
+	tree1_str = str(x)
+	nodesX = countNodes(x)
+	depth_est = findDepth(x)
+	
+	print("Depth Returned: {}, Depth Estimated: {}".format(depth, depth_est))
+	# visualizeTree(x, depth)
+	tree = pruneTree(x, testing)
+	depth2 = findDepth(tree)
+
+	print("Depth Returned Pre-Prune: {}".format(depth))
+	print("No of Nodes Pre-Pruning", nodesX)
+	print("Pruned Depth: {}".format(depth2))
+	print("No of Nodes Post-Pruning", countNodes(tree))
+	# visualizeTree(tree, depth2)
+	tree2_str = str(tree)
+	print("Equals x-tree:", tree1_str == tree2_str)
