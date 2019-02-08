@@ -20,19 +20,16 @@ def find_number_labels(data):
         counter.append(data[data[:, -1] == i].shape[0])
     return counter
 
-def decision_tree_learning(count, data, depth):
-    count += 1
+def decision_tree_learning(data, depth):
     # Get all labels
     labels = data[:,-1]
     # Check if all samples have the same label
     result = len(set(labels)) == 1
     if result:
         # Return a leaf note with this value, depth
-        #return count, Leaf(labels[0]), depth
-        return count, TreeNode(None, None, None, None, True, int(labels[0])), depth
+        return TreeNode(None, None, None, None, True, int(labels[0])), depth
     else:
         node = find_split(data)
-        #if isinstance(node, TreeNode):
         if node.isLeaf == False:
 
             # this should be adding label to tree as we go - NEED TO TEST
@@ -40,13 +37,12 @@ def decision_tree_learning(count, data, depth):
 
             l_dataset = data[data[:, node.attribute] <= node.value]
             r_dataset = data[data[:, node.attribute] > node.value]
-            count, node.left, l_depth = decision_tree_learning(count, l_dataset, depth+1)
-            count, node.right, r_depth = decision_tree_learning(count, r_dataset, depth+1)
+            node.left, l_depth = decision_tree_learning(l_dataset, depth+1)
+            node.right, r_depth = decision_tree_learning(r_dataset, depth+1)
 
-            return count, node, np.max([l_depth, r_depth])
-        #elif isinstance(node, Leaf):
+            return node, np.max([l_depth, r_depth])
         elif node.isLeaf:
-            return count, node, depth
+            return node, depth
         else:
             print('Error!! Should not reach here!!')
 

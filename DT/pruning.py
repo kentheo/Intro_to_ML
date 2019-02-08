@@ -64,25 +64,24 @@ def pruneTree(tree, validation_data):
 	while nodes_pruned > 0:
 		nodes_pruned = findLeafNode(tree, tree, validation_data)
 		#Just here for testing purposes
-		acc, cm = evaluate(clean_data, tree)
+		acc, cm = evaluate(validation_data, tree)
 		print(acc)
 		#print("CM: {}".format(cm))
 		print(nodes_pruned)
 
 	return tree
 
-if __name__ == "__main__":
-	clean_data = np.loadtxt('wifi_db/clean_dataset.txt')
-	noisy_data = np.loadtxt('wifi_db/noisy_dataset.txt')
-
-	folds = create_folds(clean_data)
-	training = folds[0]
-	testing = folds[2]
-
-	#np.append(training, folds[7])
-	#np.append(testing, folds[8])
-	count, x, depth = decision_tree_learning(-1, training, 0)
-	#acc, cm = evaluate(clean_data, x)
-	#print(acc)
-	pruneTree(x, folds[5])
-	
+# if __name__ == "__main__":
+# 	clean_data = np.loadtxt('wifi_db/clean_dataset.txt')
+# 	noisy_data = np.loadtxt('wifi_db/noisy_dataset.txt')
+#
+# 	folds = create_folds(clean_data)
+# 	training = folds[0]
+# 	testing = folds[2]
+#
+# 	#np.append(training, folds[7])
+# 	#np.append(testing, folds[8])
+# 	x, depth = decision_tree_learning(training, 0)
+# 	#acc, cm = evaluate(clean_data, x)
+# 	#print(acc)
+# 	pruneTree(x, folds[5])
