@@ -18,6 +18,7 @@ The first argument passed must be the task and it can be:
 The second argument passed must be the dataset. It can be:
 1. clean
 2. noisy
+
 *Note:* To run any task on a different dataset, the whole path to the text file must be provided as a second argument
 
 **Example 1**
