@@ -2,7 +2,10 @@ import matplotlib.pyplot as plt
 from matplotlib import collections  as mc
 import random
 from TreeNode import TreeNode
-# Set up fig, ax
+
+# Function to visualize Tree
+# Sets up parameters before calling the function
+# that recursively draws it
 def visualizeTree(head, depth):
     # Depth is -1 from drawTree, so increment it
     depth += 1
@@ -15,7 +18,6 @@ def visualizeTree(head, depth):
     ymax = 0.1 * depth
 
     fig, ax = plt.subplots()
-    # fig, ax = plt.subplots(figsize=(2 ** depth, depth))
     ax.set_xlim([xmin,xmax])
     ax.set_ylim([ymin,ymax])
 
@@ -25,8 +27,9 @@ def visualizeTree(head, depth):
     drawTree(head, depth - 1, x, y, fig, ax, None)
 
     plt.show()
-    # plt.savefig("mpla.png")
 
+# Function that recursively draws tree
+# Should not be called directly, must be called by visualizeTree()
 def drawTree(head, depth, x, y, fig, ax, LR):
     # Prepare Parameters
     lines = []
@@ -56,15 +59,11 @@ def drawTree(head, depth, x, y, fig, ax, LR):
 
     else:
         string = "Class " + str(head.label)
-    	# string = "leaf: "
-    	# if LR == 'L':
-    	# 	string += "1.00"
-    	# elif LR == 'R':
-    	# 	string += "0.00"
 
     ax.text(x, y, string, color='black', horizontalalignment='center', zorder=10,
             bbox=dict(facecolor='none', edgecolor='blue'))
 
+# Returns a tree of depth=depth with random values, for testing purposes
 def createTestTree(depth):
 
 	ranAt1 = int(random.random() * 10)
