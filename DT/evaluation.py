@@ -1,5 +1,8 @@
 import numpy as np
 import copy
+import seaborn as sn
+import pandas as pd
+import matplotlib.pyplot as plt  
 from TreeNode import *
 
 def create_folds(data, n_folds = 10):
@@ -65,7 +68,6 @@ def evaluate(data, tree):
 def k_fold_cv(data, k = 10, pruning = False):
     folds = create_folds(data, k)
     conf_matrices = []
-    # print(folds)
     if pruning:
         for i in range(len(folds)):
             # Get a test set
@@ -126,8 +128,10 @@ def evaluation(data, k = 10, pruning = False):
     print("{} Confusion matrices".format(len(conf_matrices)))
     for i in range(len(conf_matrices)):
         avg_conf_matrix += conf_matrices[i]
+    
     avg_conf_matrix /= len(conf_matrices)
-
+    # temp_sum_mat = copy.deepcopy(avg_conf_matrix)
+    
     # Compute avg performance metrics for each class
     avg_recall = np.zeros(4)
     avg_precision = np.zeros(4)
@@ -140,7 +144,15 @@ def evaluation(data, k = 10, pruning = False):
 
     avg_class_rate = compute_classification_rate(avg_conf_matrix)
 
+    # show_conf_matrix(temp_sum_mat)
     return avg_recall, avg_precision, avg_f1_score, avg_class_rate
+
+def show_conf_matrix(matrix):
+	df_cm = pd.DataFrame(matrix, range(4), range(4))
+	plt.figure(figsize = (10,7))
+	sn.set(font_scale=1.2) #for label size
+	sn.heatmap(df_cm, annot=True,annot_kws={"size": 13}) # font size
+	plt.show()
 
 def compute_recall(confusion_matrix, label):
     '''

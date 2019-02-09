@@ -19,8 +19,8 @@ def main():
     elif dataset == 'noisy':
         data = np.loadtxt('wifi_db/noisy_dataset.txt')
     else:
-        # !! Must be modified by tester !!
-        data = np.loadtxt('to/be/provided/by/tester')
+    	# Whole path to unknown to us dataset text file
+        data = np.loadtxt(sys.argv[2:3][0])
 
     # Check task to perform
     if task == 'creation':
@@ -34,8 +34,9 @@ def main():
         depth_val = 0
         # Method to produce a Tree
         tree, depth_val = decision_tree_learning(data, depth_val)
+        print("Depth of created tree:", depth_val)
         # Visualization of Tree created above
-        visualization.visualizeTree(x, depth_val)
+        visualization.visualizeTree(tree, depth_val)
     elif task == 'evaluation':
         avg_recall, avg_precision, avg_f1_score, avg_class_rate = evaluation(data)
         print('----------- Performance Metrics after K Fold Validation ------------------')
@@ -52,4 +53,3 @@ def main():
         print("Average Classification Rate of K Fold Validation:", avg_class_rate)
 
 if __name__ == "__main__": main()
-# print(find_split(clean_data).attribute)
