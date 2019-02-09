@@ -24,23 +24,18 @@ def findLeafNode(currentNode, head, data):
 		elif not currentNode.right.isLeaf:
 			count += findLeafNode(currentNode.right, head, data)
 	else:
-		print("Found node")
 		acc1, cm = evaluate(data, head)
-		print("ACC1: {:.3f}".format(acc1))
 		left = currentNode.left
 		right = currentNode.right
 
 		removeLeaves(currentNode)
 
 		acc2, cm = evaluate(data, head)
-		print("ACC2: {:.3f}".format(acc2))
 		if acc1 > acc2:
-			print("Shouldnt prune")
 			currentNode.left = left
 			currentNode.right = right
 			currentNode.isLeaf = False
 		else:
-			print("Should prune")
 			count += 1
 	return count
 
@@ -48,10 +43,8 @@ def findDepth(tree):
 	depth1 = 0
 	depth2 = 0
 	if not tree.left.isLeaf:
-		#depth1 += 1
 		depth1 += findDepth(tree.left)
 	if not tree.right.isLeaf:
-		#depth2 += 1
 		depth2 += findDepth(tree.right)
 	if depth1 > depth2:
 		return depth1 + 1
@@ -80,12 +73,6 @@ def pruneTree(tree, validation_data):
 	nodes_pruned = 1
 	while nodes_pruned > 0:
 		nodes_pruned = findLeafNode(tree, tree, validation_data)
-		#print(depth)
-		#Just here for testing purposes
-		acc, cm = evaluate(validation_data, tree)
-		#print(acc)
-		#print("CM: {}".format(cm))
-		print("Nodes Pruned:", nodes_pruned)
 
 	return tree
 
@@ -103,34 +90,34 @@ def countNodes(root):
 		    count += countNodes(root.right)
 	return count
 
-if __name__ == "__main__":
-	
-	clean_data = np.loadtxt('wifi_db/clean_dataset.txt')
-	noisy_data = np.loadtxt('wifi_db/noisy_dataset.txt')
-	data = np.loadtxt('test_01.txt')
-	folds = create_folds(noisy_data)
-	print("folds: {}".format(len(folds)))
-
-	training = np.concatenate(folds[1:10], axis = 0)
-	testing = folds[0]
-
-	print("train: {}".format(training.shape))
-	print("test: {}".format(testing.shape))
-
-	x, depth = decision_tree_learning(training, 0)
-	tree1_str = str(x)
-	nodesX = countNodes(x)
-	depth_est = findDepth(x)
-	
-	print("Depth Returned: {}, Depth Estimated: {}".format(depth, depth_est))
-	# visualizeTree(x, depth)
-	tree = pruneTree(x, testing)
-	depth2 = findDepth(tree)
-
-	print("Depth Returned Pre-Prune: {}".format(depth))
-	print("No of Nodes Pre-Pruning", nodesX)
-	print("Pruned Depth: {}".format(depth2))
-	print("No of Nodes Post-Pruning", countNodes(tree))
-	# visualizeTree(tree, depth2)
-	tree2_str = str(tree)
-	print("Equals x-tree:", tree1_str == tree2_str)
+# if __name__ == "__main__":
+#
+# 	clean_data = np.loadtxt('wifi_db/clean_dataset.txt')
+# 	noisy_data = np.loadtxt('wifi_db/noisy_dataset.txt')
+# 	data = np.loadtxt('test_01.txt')
+# 	folds = create_folds(noisy_data)
+# 	print("folds: {}".format(len(folds)))
+#
+# 	training = np.concatenate(folds[1:10], axis = 0)
+# 	testing = folds[0]
+#
+# 	print("train: {}".format(training.shape))
+# 	print("test: {}".format(testing.shape))
+#
+# 	x, depth = decision_tree_learning(training, 0)
+# 	tree1_str = str(x)
+# 	nodesX = countNodes(x)
+# 	depth_est = findDepth(x)
+#
+# 	print("Depth Returned: {}, Depth Estimated: {}".format(depth, depth_est))
+# 	# visualizeTree(x, depth)
+# 	tree = pruneTree(x, testing)
+# 	depth2 = findDepth(tree)
+#
+# 	print("Depth Returned Pre-Prune: {}".format(depth))
+# 	print("No of Nodes Pre-Pruning", nodesX)
+# 	print("Pruned Depth: {}".format(depth2))
+# 	print("No of Nodes Post-Pruning", countNodes(tree))
+# 	# visualizeTree(tree, depth2)
+# 	tree2_str = str(tree)
+# 	print("Equals x-tree:", tree1_str == tree2_str)

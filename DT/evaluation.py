@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 from TreeNode import *
 
 def create_folds(data, n_folds = 10):
@@ -63,19 +64,35 @@ def evaluate(data, tree):
 
 def k_fold_cv(data, k = 10, pruning = False):
     folds = create_folds(data, k)
-    # split into test and training arrays
     conf_matrices = []
-    for i in range(len(folds)):
-        test = folds[i]
-        training = np.concatenate(folds[:i] + folds[i+1:], axis = 0)
-        tree, depth = decision_tree_learning(training, 0)
+    # print(folds)
+    if pruning:
+        for i in range(len(folds)):
+            # Get a test set
+            train_val_sets = copy.deepcopy(folds)
+            test = folds[i]
+            # Remove the test set from the copy of the folds
+            del train_val_sets[i]
+            for j in range(len(train_val_sets)):
+                # Split training and validation sets
+                validation = train_val_sets[j]
+                training = np.concatenate(train_val_sets[:j] + train_val_sets[j+1:], axis = 0)
+                tree, depth = decision_tree_learning(training, 0)
+                # Prune
+                pruned_tree = pruneTree(tree, validation)
+                # After pruning, evaluate the pruned tree on the test set
+                acc, conf_matrix = evaluate(test, pruned_tree)
+                conf_matrices.append(conf_matrix)
+                print("Fold {}, Validation {}: Accuracy: {}".format(i, j, acc))
+    else:
+        for i in range(len(folds)):
+            test = folds[i]
+            training = np.concatenate(folds[:i] + folds[i+1:], axis = 0)
+            tree, depth = decision_tree_learning(training, 0)
+            acc, conf_matrix = evaluate(test, tree)
+            conf_matrices.append(conf_matrix)
+            print("Fold {}: Accuracy: {}".format(i, acc))
 
-        if pruning:
-            tree = pruneTree(tree, test)
-
-        acc, conf_matrix = evaluate(test, tree)
-        conf_matrices.append(conf_matrix)
-        print("Fold {}: Accuracy: {}".format(i, acc))
     return conf_matrices
 
 # Perform Step 3: Evaluation as a whole
@@ -104,9 +121,9 @@ def evaluation_step3(data, k = 10):
 
 # Currently, main function uses this method
 def evaluation(data, k = 10, pruning = False):
-    conf_matrices = k_fold_cv(data, k)
+    conf_matrices = k_fold_cv(data, k, pruning)
     avg_conf_matrix = np.zeros((4, 4))
-
+    print("{} Confusion matrices".format(len(conf_matrices)))
     for i in range(len(conf_matrices)):
         avg_conf_matrix += conf_matrices[i]
     avg_conf_matrix /= len(conf_matrices)
@@ -115,7 +132,7 @@ def evaluation(data, k = 10, pruning = False):
     avg_recall = np.zeros(4)
     avg_precision = np.zeros(4)
     avg_f1_score = np.zeros(4)
-    avg_class_rate = 0
+    avg_class_rate = 0.0
     for i in range(4):
         avg_recall[i] = compute_recall(avg_conf_matrix, i+1)
         avg_precision[i] = compute_precision(avg_conf_matrix, i+1)
@@ -168,3 +185,5 @@ def compute_classification_rate(confusion_matrix):
     '''
 
     return np.trace(confusion_matrix) / np.sum(confusion_matrix)
+
+from pruning import *
