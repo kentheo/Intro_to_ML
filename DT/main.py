@@ -8,6 +8,8 @@ from pruning import *
 def main():
     # For reproducability
     np.random.seed(1)
+    # 3 Decimal points in all numpy print statements
+    np.set_printoptions(precision=3)
     # Default values for args
     task = 'creation'
     dataset = 'clean'
@@ -24,6 +26,7 @@ def main():
     	# Whole path to unknown to us dataset text file
         data = np.loadtxt(sys.argv[2:3][0])
 
+    print("Running {} on {} dataset...".format(task, dataset))
     # Check task to perform
     if task == 'creation':
         # Initialisation of depth variable to be incremented by Decision Tree algorithm
@@ -45,13 +48,13 @@ def main():
         print("Average Recall for each Class:", avg_recall)
         print("Average Precision for each Class:", avg_precision)
         print("Average F1 Score for each Class:", avg_f1_score)
-        print("Average Classification Rate of K Fold Validation:", avg_class_rate)
+        print("Average Classification Rate of K Fold Validation: {:.3f}".format(avg_class_rate))
     elif task == 'pruning':
         avg_recall, avg_precision, avg_f1_score, avg_class_rate = evaluation(data, pruning = True)
         print('----------- Performance Metrics after K Fold Validation -----------')
         print("Average Recall for each Class:", avg_recall)
         print("Average Precision for each Class:", avg_precision)
         print("Average F1 Score for each Class:", avg_f1_score)
-        print("Average Classification Rate of K Fold Validation:", avg_class_rate)
+        print("Average Classification Rate of K Fold Validation: {:.3f}".format(avg_class_rate))
 
 if __name__ == "__main__": main()

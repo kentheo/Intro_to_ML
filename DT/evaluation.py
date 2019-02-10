@@ -1,9 +1,8 @@
 import numpy as np
 import copy
-import seaborn as sn
-import pandas as pd
-import matplotlib.pyplot as plt
 from TreeNode import *
+
+np.set_printoptions(precision=3)
 
 def create_folds(data, n_folds = 10):
     '''
@@ -62,10 +61,17 @@ def evaluate(data, tree):
 
         confusion_matrix[int(data[i][-1]) - 1][int(guess) - 1] += 1
     accuracy = (right / (right + wrong))
+
     return accuracy, confusion_matrix
 
 
 def k_fold_cv(data, k = 10, pruning = False):
+    '''
+    :param data: Dataset to be cross validated
+    :param k: Number of folds. 10 is the default value
+    :param pruning: Bool to determine if pruning will be done or not
+    :return: A list of confusion matrices
+    '''
     folds = create_folds(data, k)
     conf_matrices = []
     max_depth = -1
@@ -92,6 +98,7 @@ def k_fold_cv(data, k = 10, pruning = False):
                 print("Fold {}, Validation {}: Accuracy: {}".format(i+1, j+1, acc))
     else:
         for i in range(len(folds)):
+            # Get a training and test set
             test = folds[i]
             training = np.concatenate(folds[:i] + folds[i+1:], axis = 0)
             tree, depth = decision_tree_learning(training, 0)
@@ -104,40 +111,21 @@ def k_fold_cv(data, k = 10, pruning = False):
     print("Max tree depth: {}".format(max_depth))
     return conf_matrices
 
-# Perform Step 3: Evaluation as a whole
-def evaluation_step3(data, k = 10):
-    conf_matrices = k_fold_cv(data, k)
-    recall = np.zeros((k, 4))
-    precision = np.zeros((k, 4))
-    f1_score = np.zeros((k, 4))
-    classification_rate = np.zeros(k)
-
-    for i in range(len(conf_matrices)):
-        matrix = conf_matrices[i]
-        j = 0
-        for j in range(4):
-            recall[i][j] = compute_recall(matrix, j+1)
-            precision[i][j] = compute_precision(matrix, j+1)
-            f1_score[i][j] = compute_f1(recall[i][j], precision[i][j])
-        classification_rate[i] = compute_classification_rate(matrix)
-
-    avg_recall = np.mean(recall, axis=0)
-    avg_precision = np.mean(precision, axis=0)
-    avg_f1_score = np.mean(f1_score, axis=0)
-    avg_class_rate = np.mean(classification_rate)
-
-    return avg_recall, avg_precision, avg_f1_score, avg_class_rate
-
-# Currently, main function uses this method
 def evaluation(data, k = 10, pruning = False):
+    '''
+    :param data: Dataset to be cross validated
+    :param k: Number of folds. 10 is the default value
+    :param pruning: Bool to determine if pruning will be done or not
+    :return: Four performance metrics (Avg recall, Avg precision, Avg f1_score, Avg class_rate)
+    '''
     conf_matrices = k_fold_cv(data, k, pruning)
     avg_conf_matrix = np.zeros((4, 4))
-    print("Created {} confusion matrices during learning".format(len(conf_matrices)))
+    print("Now, averaging from {} Confusion matrices:".format(len(conf_matrices)))
     for i in range(len(conf_matrices)):
         avg_conf_matrix += conf_matrices[i]
 
     avg_conf_matrix /= len(conf_matrices)
-    # temp_sum_mat = copy.deepcopy(avg_conf_matrix)
+
     print("Average confusion matrix:")
     print(avg_conf_matrix)
 
@@ -145,7 +133,6 @@ def evaluation(data, k = 10, pruning = False):
     avg_recall = np.zeros(4)
     avg_precision = np.zeros(4)
     avg_f1_score = np.zeros(4)
-    avg_class_rate = 0.0
     for i in range(4):
         avg_recall[i] = compute_recall(avg_conf_matrix, i+1)
         avg_precision[i] = compute_precision(avg_conf_matrix, i+1)
@@ -153,16 +140,7 @@ def evaluation(data, k = 10, pruning = False):
 
     avg_class_rate = compute_classification_rate(avg_conf_matrix)
 
-
-    # show_conf_matrix(temp_sum_mat)
     return avg_recall, avg_precision, avg_f1_score, avg_class_rate
-
-def show_conf_matrix(matrix):
-	df_cm = pd.DataFrame(matrix, range(4), range(4))
-	plt.figure(figsize = (10,7))
-	sn.set(font_scale=1.2) #for label size
-	sn.heatmap(df_cm, annot=True,annot_kws={"size": 13}) # font size
-	plt.show()
 
 def compute_recall(confusion_matrix, label):
     '''
@@ -208,4 +186,4 @@ def compute_classification_rate(confusion_matrix):
 
     return np.trace(confusion_matrix) / np.sum(confusion_matrix)
 
-from pruning import *
+from pruning import *       # Important to remain here to fix cyclic dependencies

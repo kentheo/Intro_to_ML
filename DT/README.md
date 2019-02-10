@@ -10,10 +10,10 @@ As described in the instructions, the project is using Python 3.6.7.
 All tests on the code can be executed by running `main.py` on the terminal and passing two arguments, depending on the desired task.
 
 The first argument passed must be the task and it can be:
-1. creation
-2. visualization
-3. evaluation
-4. pruning
+1. creation (Step 2: Creating Decision Trees)
+2. visualization (Bonus Exercise: Visualize Decision Tree)
+3. evaluation (Step 3: Evaluation accuracy of created tree on provided dataset)
+4. pruning (Step 4: Pruning and evaluation again)
 
 The second argument passed must be the dataset. It can be:
 1. clean
