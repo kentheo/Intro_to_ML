@@ -2,7 +2,7 @@ import numpy as np
 import copy
 import seaborn as sn
 import pandas as pd
-import matplotlib.pyplot as plt  
+import matplotlib.pyplot as plt
 from TreeNode import *
 
 def create_folds(data, n_folds = 10):
@@ -68,6 +68,8 @@ def evaluate(data, tree):
 def k_fold_cv(data, k = 10, pruning = False):
     folds = create_folds(data, k)
     conf_matrices = []
+    max_depth = -1
+    max_nodes = -1
     if pruning:
         for i in range(len(folds)):
             # Get a test set
@@ -85,7 +87,9 @@ def k_fold_cv(data, k = 10, pruning = False):
                 # After pruning, evaluate the pruned tree on the test set
                 acc, conf_matrix = evaluate(test, pruned_tree)
                 conf_matrices.append(conf_matrix)
-                print("Fold {}, Validation {}: Accuracy: {}".format(i, j, acc))
+                if depth > max_depth:
+                    max_depth = depth
+                print("Fold {}, Validation {}: Accuracy: {}".format(i+1, j+1, acc))
     else:
         for i in range(len(folds)):
             test = folds[i]
@@ -93,8 +97,11 @@ def k_fold_cv(data, k = 10, pruning = False):
             tree, depth = decision_tree_learning(training, 0)
             acc, conf_matrix = evaluate(test, tree)
             conf_matrices.append(conf_matrix)
-            print("Fold {}: Accuracy: {}".format(i, acc))
+            if depth > max_depth:
+                max_depth = depth
+            print("Fold {}: Accuracy: {}".format(i+1, acc))
 
+    print("Max tree depth: {}".format(max_depth))
     return conf_matrices
 
 # Perform Step 3: Evaluation as a whole
@@ -125,13 +132,15 @@ def evaluation_step3(data, k = 10):
 def evaluation(data, k = 10, pruning = False):
     conf_matrices = k_fold_cv(data, k, pruning)
     avg_conf_matrix = np.zeros((4, 4))
-    print("{} Confusion matrices".format(len(conf_matrices)))
+    print("Created {} confusion matrices during learning".format(len(conf_matrices)))
     for i in range(len(conf_matrices)):
         avg_conf_matrix += conf_matrices[i]
-    
+
     avg_conf_matrix /= len(conf_matrices)
     # temp_sum_mat = copy.deepcopy(avg_conf_matrix)
-    
+    print("Average confusion matrix:")
+    print(avg_conf_matrix)
+
     # Compute avg performance metrics for each class
     avg_recall = np.zeros(4)
     avg_precision = np.zeros(4)
@@ -143,6 +152,7 @@ def evaluation(data, k = 10, pruning = False):
         avg_f1_score[i] = compute_f1(avg_recall[i], avg_precision[i])
 
     avg_class_rate = compute_classification_rate(avg_conf_matrix)
+
 
     # show_conf_matrix(temp_sum_mat)
     return avg_recall, avg_precision, avg_f1_score, avg_class_rate
