@@ -74,9 +74,9 @@ def k_fold_cv(data, k = 10, pruning = False):
     '''
     folds = create_folds(data, k)
     conf_matrices = []
-    max_depth = -1
-    max_nodes = -1
     if pruning:
+        # max_depth_pre = -1
+        # max_depth_post = -1
         for i in range(len(folds)):
             # Get a test set
             train_val_sets = copy.deepcopy(folds)
@@ -90,13 +90,22 @@ def k_fold_cv(data, k = 10, pruning = False):
                 tree, depth = decision_tree_learning(training, 0)
                 # Prune
                 pruned_tree = pruneTree(tree, validation)
+                # Get pruned tree depth
+                # depth_post = findDepth(pruned_tree)
                 # After pruning, evaluate the pruned tree on the test set
                 acc, conf_matrix = evaluate(test, pruned_tree)
                 conf_matrices.append(conf_matrix)
-                if depth > max_depth:
-                    max_depth = depth
+                # if depth > max_depth_pre:
+                #     max_depth_pre = depth
+                # if depth_post > max_depth_post:
+                #     max_depth_post = depth_post
                 print("Fold {}, Validation {}: Accuracy: {}".format(i+1, j+1, acc))
+
+        # print("Max tree depth before pruning: {}".format(max_depth_pre))
+        # print("Max tree depth after pruning: {}".format(max_depth_post))
+
     else:
+        # max_depth = -1
         for i in range(len(folds)):
             # Get a training and test set
             test = folds[i]
@@ -104,11 +113,11 @@ def k_fold_cv(data, k = 10, pruning = False):
             tree, depth = decision_tree_learning(training, 0)
             acc, conf_matrix = evaluate(test, tree)
             conf_matrices.append(conf_matrix)
-            if depth > max_depth:
-                max_depth = depth
+            # if depth > max_depth:
+            #     max_depth = depth
             print("Fold {}: Accuracy: {}".format(i+1, acc))
+        # print("Max tree depth: {}".format(max_depth))
 
-    print("Max tree depth: {}".format(max_depth))
     return conf_matrices
 
 def evaluation(data, k = 10, pruning = False):
