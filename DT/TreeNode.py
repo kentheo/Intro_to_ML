@@ -2,6 +2,10 @@ import numpy as np
 import sys
 
 class TreeNode:
+    '''
+    Class for creating tree nodes
+    The root node stores the whole decision tree
+    '''
     def __init__(self, attribute, value, left, right, isLeaf = False, label = None):
         self.attribute = attribute
         self.value = value
@@ -20,6 +24,7 @@ def find_number_labels(data):
         counter.append(data[data[:, -1] == i].shape[0])
     return counter
 
+# Implementation of pseudocode
 def decision_tree_learning(data, depth):
     # Get all labels
     labels = data[:,-1]
@@ -45,27 +50,6 @@ def decision_tree_learning(data, depth):
             return node, depth
         else:
             print('Error!! Should not reach here!!')
-
-def entropy(data):
-    unique_labels = np.unique(data[:, -1])
-    num_data = len(data)
-    sum = 0
-    for i in unique_labels:
-        x = data[data[:, -1] == i].shape[0]
-        p_k = x / num_data
-        sum += p_k * np.log2(p_k)
-    return -sum
-
-def remainder(S_left, S_right):
-    n_S_left = S_left.shape[0]
-    n_S_right = S_right.shape[0]
-    term1 = (n_S_left / (n_S_left + n_S_right)) * entropy(S_left)
-    term2 = (n_S_right / (n_S_left + n_S_right)) * entropy(S_right)
-
-    return term1 + term2
-
-def information_gain(S_all, S_left, S_right):
-    return entropy(S_all) - remainder(S_left, S_right)
 
 def find_split(data):
     rows = data.shape[0]
@@ -99,6 +83,29 @@ def find_split(data):
         label = plurality_vote(data)
         #return Leaf(int(label))
         return TreeNode(None, None, None, None, True, int(label))
+
+# Helper functions
+
+def entropy(data):
+    unique_labels = np.unique(data[:, -1])
+    num_data = len(data)
+    sum = 0
+    for i in unique_labels:
+        x = data[data[:, -1] == i].shape[0]
+        p_k = x / num_data
+        sum += p_k * np.log2(p_k)
+    return -sum
+
+def remainder(S_left, S_right):
+    n_S_left = S_left.shape[0]
+    n_S_right = S_right.shape[0]
+    term1 = (n_S_left / (n_S_left + n_S_right)) * entropy(S_left)
+    term2 = (n_S_right / (n_S_left + n_S_right)) * entropy(S_right)
+
+    return term1 + term2
+
+def information_gain(S_all, S_left, S_right):
+    return entropy(S_all) - remainder(S_left, S_right)
 
 def plurality_vote(data):
     labels = data[:,-1]

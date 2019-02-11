@@ -4,6 +4,8 @@ from TreeNode import TreeNode
 from evaluation import *
 from visualization import *
 
+# Pruning implementation
+
 def findLeafNode(currentNode, head, data):
 	'''
 	params:
@@ -89,35 +91,3 @@ def countNodes(root):
 		if root.right is not None:
 		    count += countNodes(root.right)
 	return count
-
-# if __name__ == "__main__":
-#
-# 	clean_data = np.loadtxt('wifi_db/clean_dataset.txt')
-# 	noisy_data = np.loadtxt('wifi_db/noisy_dataset.txt')
-# 	data = np.loadtxt('test_01.txt')
-# 	folds = create_folds(noisy_data)
-# 	print("folds: {}".format(len(folds)))
-#
-# 	training = np.concatenate(folds[1:10], axis = 0)
-# 	testing = folds[0]
-#
-# 	print("train: {}".format(training.shape))
-# 	print("test: {}".format(testing.shape))
-#
-# 	x, depth = decision_tree_learning(training, 0)
-# 	tree1_str = str(x)
-# 	nodesX = countNodes(x)
-# 	depth_est = findDepth(x)
-#
-# 	print("Depth Returned: {}, Depth Estimated: {}".format(depth, depth_est))
-# 	# visualizeTree(x, depth)
-# 	tree = pruneTree(x, testing)
-# 	depth2 = findDepth(tree)
-#
-# 	print("Depth Returned Pre-Prune: {}".format(depth))
-# 	print("No of Nodes Pre-Pruning", nodesX)
-# 	print("Pruned Depth: {}".format(depth2))
-# 	print("No of Nodes Post-Pruning", countNodes(tree))
-# 	# visualizeTree(tree, depth2)
-# 	tree2_str = str(tree)
-# 	print("Equals x-tree:", tree1_str == tree2_str)
